@@ -13,8 +13,17 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Install matching Godot export templates
+        run: |
+          mkdir -p "$HOME/.local/share/godot/export_templates/4.4.1.stable"
+          wget -q https://github.com/godotengine/godot/releases/download/4.4.1-stable/Godot_v4.4.1-stable_export_templates.tpz -O /tmp/godot-export-templates.tpz
+          mkdir -p /tmp/godot-export-templates
+          unzip -q -o /tmp/godot-export-templates.tpz -d /tmp/godot-export-templates
+          cp -R /tmp/godot-export-templates/templates/. "$HOME/.local/share/godot/export_templates/4.4.1.stable/"
       - name: Prepare output folder
         run: mkdir -p build
+      - name: Validate project scripts
+        run: godot --headless --path . --editor --quit
       - name: Export Windows game
         run: godot --headless --verbose --path . --export-release "Windows Desktop" build/Blockverse.exe
       - name: Package executable and game data
