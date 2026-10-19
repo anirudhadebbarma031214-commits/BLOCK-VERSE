@@ -1,0 +1,30 @@
+name: Build BLOCK-VERSE for Windows
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: ubuntu-latest
+    container:
+      image: barichello/godot-ci:4.4.1
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Prepare output folder
+        run: mkdir -p build
+      - name: Export Windows game
+        run: godot --headless --verbose --path . --export-release "Windows Desktop" build/Blockverse.exe
+      - name: Package executable and game data
+        run: |
+          cd build
+          zip -j BLOCK-VERSE-Windows.zip Blockverse.exe Blockverse.pck
+      - name: Upload Windows build
+        uses: actions/upload-artifact@v4
+        with:
+          name: BLOCK-VERSE-Windows
+          path: build/BLOCK-VERSE-Windows.zip
+          if-no-files-found: error
+          retention-days: 14
